@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>코스트 데일리 게임판</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #f7f4ee;
+            --card-bg: #ffffff;
+            --accent: #ffb3b3;
+            --accent-2: #ffe28f;
+            --accent-3: #b7e3ff;
+            --accent-4: #c6e8b5;
+            --accent-5: #d9c6ff;
+            --border: #e0d8c8;
+            --text-main: #2f2a25;
+            --text-soft: #756b61;
+            --danger: #ff5d5d;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.06);
+
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                "Noto Sans KR", sans-serif;
+            background: radial-gradient(circle at top left, #fff8ec, #f5f1ea);
+            color: var(--text-main);
+        }
+
+        .app {
+            max-width: 1300px;
+            margin: 24px auto 40px;
+            padding: 0 16px;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .title-group h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 0.02em;
+        }
+
+        .title-group p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .status-card {
+            flex: 1;
+            min-width: 260px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .status-main {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .status-main span.label {
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .status-numbers {
+            display: flex;
+            gap: 14px;
+            align-items: baseline;
+            font-weight: 600;
+        }
+
+        .status-numbers span {
+            font-size: 13px;
+        }
+
+        .status-numbers strong {
+            font-size: 20px;
+            margin-left: 4px;
+        }
+
+        .status-numbers .over {
+            color: var(--danger);
+        }
+
+        .status-extra {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+        }
+
+        select,
+        button {
+            font-family: inherit;
+        }
+
+        .external-select {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .external-select select {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fffdf8;
+            font-size: 13px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
+            transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.15s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            background: #2f2a25;
+            color: #fff;
+        }
+
+        .btn.secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5ddd0;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 7px rgba(0, 0, 0, 0.08);
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .external-note {
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .external-note input {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fffdfc;
+            font-size: 12px;
+            min-width: 200px;
+            /* 필요 없으면 지워도 됨 */
+        }
+
+        .cost-column {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 14px 14px 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 220px;
+        }
+
+        .cost-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .cost-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            color: #2f2a25;
+        }
+
+        .cost-title {
+            margin-left: 8px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .cost-header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .cost-sub {
+            font-size: 11px;
+            color: var(--text-soft);
+            text-align: right;
+        }
+
+        .task-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            font-size: 13px;
+            margin-top: 4px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 3px;
+        }
+
+        .task-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 4px 0;
+        }
+
+        .task-list input[type="checkbox"] {
+            margin-top: 2px;
+        }
+
+        .task-label {
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .task-label span.cost-chip {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: #f1ece1;
+            margin-left: 4px;
+        }
+
+        footer {
+            max-width: 1100px;
+            margin: 18px auto 32px;
+            padding: 0 16px;
+            font-size: 11px;
+            color: var(--text-soft);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .warning {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 4px;
+            text-align: right;
+            min-height: 16px;
+        }
+
+        /* Accent colors per column */
+        .col-1 .cost-badge {
+            background: var(--accent);
+        }
+
+        .col-2 .cost-badge {
+            background: var(--accent-2);
+        }
+
+        .col-3 .cost-badge {
+            background: var(--accent-3);
+        }
+
+        .col-4 .cost-badge {
+            background: var(--accent-4);
+        }
+
+        .col-5 .cost-badge {
+            background: var(--accent-5);
+        }
+
+        /* 체크된 항목 공통 스타일 */
+        .task-label.checked {
+            font-weight: 600;
+        }
+
+        /* 코스트별 컬러 강조 (원하는 색으로 바꿔도 됨) */
+        .col-1 .task-label.checked {
+            color: #d95c5c;
+        }
+
+        /* 1코: 빨간 계열 */
+        .col-2 .task-label.checked {
+            color: #d49a28;
+        }
+
+        /* 2코: 노랑/주황 */
+        .col-3 .task-label.checked {
+            color: #2f7fb8;
+        }
+
+        /* 3코: 파랑 */
+        .col-4 .task-label.checked {
+            color: #3f9142;
+        }
+
+        /* 4코: 초록 */
+        .col-5 .task-label.checked {
+            color: #7b5bd6;
+        }
+
+        /* 5코: 보라 */
+        /* 요약 박스는 가로폭 2칸 차지 (grid-span-2) */
+        .col-summary {
+            grid-column: span 2;
+        }
+
+        #summaryList li {
+            padding: 6px 4px;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #summaryList li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-cost {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 6px;
+            opacity: 0.6;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-text {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .summary-remove {
+            cursor: pointer;
+            color: #c77;
+            font-size: 14px;
+            margin-left: 10px;
+            opacity: 0.8;
+        }
+
+        .summary-remove:hover {
+            opacity: 1;
+            color: #ff4d4d;
+        }
+
+        .col-info {
+            grid-column: span 1;
+            /* 너가 원하는 만큼 조절해도 됨 */
+        }
+
+        .info-box-content {
+            background: #ffffff;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-line {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2f2a25;
+        }
+
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .status-card {
+                order: 2;
+            }
+
+            .title-group {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <div class="title-group">
+                <h1>코스트 데일리 보드</h1>
+                <p>코스트 = 내가 성장하기 위해 쓰는 체력 / 시간을 수치화한 시스템 ✨</p>
+            </div>
+            <div class="status-card">
+                <div class="status-main">
+                    <span class="label">오늘의 코스트 현황</span>
+                    <div class="status-numbers">
+                        <span>사용 코스트 <strong id="usedCost">0</strong></span>
+                        <span>남은 코스트
+                            <strong id="remainingCost">10</strong>
+                        </span>
+                    </div>
+                    <div class="external-select">
+                        오늘의 외부일정
+                        <select id="externalCostSelect">
+                            <option value="0">0코 (없음)</option>
+                            <option value="1">-1코</option>
+                            <option value="2">-2코</option>
+                            <option value="3">-3코</option>
+                            <option value="4">-4코</option>
+                            <option value="5">-5코</option>
+                            <option value="6">-6코</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="external-note">
+                    <label for="externalNote">외부일정 메모</label>
+                    <input id="externalNote" type="text" placeholder="예: 알바 4시간 + 친구랑 저녁" />
+                </div>
+                <div class="status-extra">
+                    <div class="btn-row">
+                        <button class="btn" id="randomDayBtn">에라 모르겠다! 랜덤 하루 🎲</button>
+                        <button class="btn secondary" id="resetBtn">모두 초기화</button>
+                    </div>
+                    <div id="warning" class="warning"></div>
+                </div>
+            </div>
+        </header>
+
+        <main id="board">
+            <!-- 1코스트 -->
+            <section class="cost-column col-1" data-cost="1">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">1</div>
+                        <div class="cost-title">
+                            1코스트<br><span>(가벼움 · 5~10분)</span>
+                        </div>
+                    </div>
+                    <div class="cost-sub">워밍업 & 생활 루틴</div>
+                </div>
+                <ul class="task-list">
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            물 500ml 마시기
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            10분 산책
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            책상 정리
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            일기 쓰기
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            짧은 스트레칭
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            방 5분 정리 or 환기 1회
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            설거지 간단히
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            배달 대신 만들어먹기 / 간단한 한 끼
+                        </label>
+                    </li>
+                    <li>
+                        <label class="task-label">
+                            <input type="checkbox" data-cost="1">
+                            오늘의 성장 1% 쓰기
+                        </label>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- 2코스트 -->
+            <section class="cost-column col-2" data-cost="2">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">2</div>
+                        <div class="cost-title">
+                            2코스트<br><span>(가벼운 집중 · 20~30분)</span>
+                        </div>
+                    </div>
+                    <div class="cost-sub">집중 시작 단계</div>
+                </div>
+                <ul class="task-list">
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            토익 단어 or 언어공부 30분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            책 20~30분 읽기
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            디자인 감상 (레퍼런스 탐색)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            포폴 구상 or 작은 수정
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            산책 20분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            코딩 문제 1개
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            자격증 이론 20~30분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            노션 정리 30분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            간단 디자인 작업 1개 (명함, 배너, 썸네일, 작은 UI)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            카공가기 (자리잡기 포함)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            유튜브 인강 20~30분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            드로잉 20분 or 일러 레퍼 따라 그리기
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            글쓰기 20분 (블로그, 일기 심화, 생각정리)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="2">
+                            TED 영상 1개 (짧은 강의)
+                        </label></li>
+                </ul>
+            </section>
+
+            <!-- 3코스트 -->
+            <section class="cost-column col-3" data-cost="3">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">3</div>
+                        <div class="cost-title">
+                            3코스트<br><span>(집중 모드 · 40~60분)</span>
+                        </div>
+                    </div>
+                    <div class="cost-sub">핵심 성장 시간</div>
+                </div>
+                <ul class="task-list">
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            토익 LC/RC 각 1세트
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            디자인 실습 1시간 (피그마, 일러, 포토샵)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            집안 리셋 (정리 + 환기)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            자격증 공부 1챕터
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            포트폴리오 페이지 1개 제작
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            코딩 강의 1시간
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            코딩 프로젝트 기능 1개 구현
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            운동 40~60분
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            카공(스카) 집중 1시간
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="3">
+                            재정 관리 (가계부 정리 / 투자 기록 정리, 주식 포폴 정리)
+                        </label></li>
+                </ul>
+            </section>
+
+            <!-- 4코스트 -->
+            <section class="cost-column col-4" data-cost="4">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">4</div>
+                        <div class="cost-title">
+                            4코스트<br><span>(고난도 · 60~90분)</span>
+                        </div>
+                    </div>
+                    <div class="cost-sub">실력 상승 타임</div>
+                </div>
+                <ul class="task-list">
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            자격증 전 범위 중 한 토픽 완전 이해
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            자격증 실기 문제 1개 완전 작업
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            포트폴리오 섹션 하나 기획~디자인 완성
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            토익 실전 문제 풀기 + 오답 분석
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            코딩 프로젝트 새 기능 + 디버깅 포함
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            디자인 작업 "중형 단위" (상세 페이지 1개, 앱 UI 두 화면)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            카공(스카) 1.5시간 바짝 집중
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            방 대청소 (대형 정리 + 구조 잡기)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            언어공부(중국어/JLPT 등) 심화 1~1.5시간
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            심화 글쓰기 (UX 케이스 스터디 분석, 서비스 분석 A4 한장 작성)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="4">
+                            포폴 콘텐츠 제작 (인터뷰 대비용 스토리라인 작성)
+                        </label></li>
+                </ul>
+            </section>
+
+            <!-- 5코스트 -->
+            <section class="cost-column col-5" data-cost="5">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">5</div>
+                        <div class="cost-title">
+                            5코스트<br><span>(특대형 · 2~3시간)</span>
+                        </div>
+                    </div>
+                    <div class="cost-sub">오늘의 빅 미션</div>
+                </div>
+                <ul class="task-list">
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="5">
+                            자격증 실기 올인 (모의고사, 기출, 예상문제 풀기)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="5">
+                            카공(스카) 2~3시간 집중 (토익+자격증 / 코딩+디자인 콤보)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="5">
+                            포트폴리오 대형 섹션 만들기 (프로젝트 1개 기획→디자인→정리 완주)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="5">
+                            개인 프로젝트 진전 (코딩 / UI·UX / 앱 흐름 설계 정리)
+                        </label></li>
+                    <li><label class="task-label">
+                            <input type="checkbox" data-cost="5">
+                            인생 정리 (라이프 리셋, 방 구조 재정비 / 옷·짐 전체 정리)
+                        </label></li>
+                </ul>
+            </section>
+            <!-- 6번째 박스: 요약 패널 -->
+            <section class="cost-column col-summary" data-cost="0">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">✔</div>
+                        <div class="cost-title">
+                            오늘 체크한 항목
+                        </div>
+                    </div>
+                    <div class="cost-sub">정렬 가능</div>
+                </div>
+
+                <div style="display:flex; gap:6px; margin-bottom:8px;">
+                    <button class="btn secondary" id="sortAscBtn">코스트 ↑</button>
+                    <button class="btn secondary" id="sortDescBtn">코스트 ↓</button>
+                </div>
+
+                <ul id="summaryList" class="task-list"></ul>
+            </section>
+            <!-- ⭐ 새로운 정보 박스: 날짜/시간/기온 -->
+            <section class="cost-column col-info">
+                <div class="cost-header">
+                    <div class="cost-header-left">
+                        <div class="cost-badge">ℹ️</div>
+                        <div class="cost-title">
+                            오늘 정보
+                        </div>
+                    </div>
+                    <div class="cost-sub">자동 업데이트</div>
+                </div>
+
+                <div class="info-box-content">
+                    <div id="dailyDate" class="info-line">📅 불러오는 중...</div>
+                    <div id="dailyTime" class="info-line">⏰ --:--</div>
+                    <div id="dailyTemp" class="info-line">🌤 -°C</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer>
+        <span>💡 팁: 오늘 보드를 채운 뒤 화면 캡처해서 일기/노션에 붙여두면 성장 로그가 쌓여요.</span>
+        <span>Made for 제은's 자기브랜딩 프로젝트 · Feel free to fork & customize ✨</span>
+    </footer>
+
+    <script>
+        const MAX_COST = 10;
+        const usedCostEl = document.getElementById("usedCost");
+        const remainingCostEl = document.getElementById("remainingCost");
+        const warningEl = document.getElementById("warning");
+        const externalSelect = document.getElementById("externalCostSelect");
+        const randomBtn = document.getElementById("randomDayBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const dateInfoEl = document.getElementById("dateInfo");
+        let currentTempC = null; // 기온 저장용
+
+        const checkboxes = Array.from(
+            document.querySelectorAll('.task-list input[type="checkbox"]')
+        );
+
+        function getExternalCost() {
+            return Number(externalSelect.value) || 0;
+        }
+
+        function getAllowedCost() {
+            return Math.max(0, MAX_COST - getExternalCost());
+        }
+
+        function calculateUsedCost() {
+            return checkboxes.reduce((sum, cb) => {
+                if (cb.checked) {
+                    const cost = Number(cb.dataset.cost) || 0;
+                    return sum + cost;
+                }
+                return sum;
+            }, 0);
+        }
+
+        function updateStatus() {
+            const used = calculateUsedCost();
+            const allowed = getAllowedCost();
+            const remaining = allowed - used;
+
+            usedCostEl.textContent = used;
+            remainingCostEl.textContent = remaining >= 0 ? remaining : 0;
+
+            if (used > allowed) {
+                usedCostEl.classList.add("over");
+                remainingCostEl.classList.add("over");
+                warningEl.textContent = `오늘 계획 코스트보다 ${used - allowed}코 초과했어! 내일은 조금만 덜 넣어볼까?`;
+            } else {
+                usedCostEl.classList.remove("over");
+                remainingCostEl.classList.remove("over");
+                warningEl.textContent =
+                    allowed === 0
+                        ? "오늘은 외부일정으로 코스트가 가득 찼어요. 살아남은 것만으로도 성공 👏"
+                        : "";
+            }
+        }
+        function updateDailyInfo() {
+            const now = new Date();
+
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const weekdayNames = ["일", "월", "화", "수", "목", "금", "토"];
+            const weekday = weekdayNames[now.getDay()];
+
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+
+            document.getElementById("dailyDate").textContent =
+                `📅 ${year}년 ${month}월 ${day}일 (${weekday})`;
+
+            document.getElementById("dailyTime").textContent =
+                `⏰ ${hh}:${mm}`;
+        }
+
+        function handleCheckboxChange(event) {
+            const cb = event.target;
+            const label = cb.closest(".task-label");
+
+            // 체크/해제에 따라 라벨 색상 토글 (2번 요구사항과 연결)
+            if (label) {
+                if (cb.checked) {
+                    label.classList.add("checked");
+                } else {
+                    label.classList.remove("checked");
+                }
+            }
+
+            updateStatus();
+            updateSummary();
+        }
+
+
+        function resetBoard() {
+            checkboxes.forEach(cb => cb.checked = false);
+            externalSelect.value = "0";
+
+            const noteInput = document.getElementById("externalNote");
+            if (noteInput) noteInput.value = "";
+
+            syncLabelClasses();
+            document.getElementById("summaryList").innerHTML = "";  // ✅ 요약 초기화
+
+            updateStatus();
+        }
+
+
+        function getAvailableTasks() {
+            return checkboxes.map((cb) => ({
+                element: cb,
+                cost: Number(cb.dataset.cost) || 0,
+            }));
+        }
+
+        function randomDay() {
+            // 모든 체크 해제
+            checkboxes.forEach((cb) => (cb.checked = false));
+            const allowed = getAllowedCost();
+            let remaining = allowed;
+
+            const tasks = getAvailableTasks();
+            const selectable = tasks.slice(); // shallow copy
+
+            // greedy 랜덤 선택
+            while (remaining > 0) {
+                const candidates = selectable.filter(
+                    (t) => !t.element.checked && t.cost <= remaining
+                );
+                if (candidates.length === 0) break;
+                const pick = candidates[Math.floor(Math.random() * candidates.length)];
+                pick.element.checked = true;
+                remaining -= pick.cost;
+            }
+            syncLabelClasses();   // 체크한 항목 색상 업데이트
+            updateSummary();      // 요약 리스트 업데이트
+            updateStatus();
+            if (allowed === 0) {
+                warningEl.textContent =
+                    "외부일정이 가득한 날이라 랜덤 코스트를 채울 수 없어요. 푹 쉬는 날로!";
+            } else if (remaining > 0) {
+                warningEl.textContent = `랜덤으로 코스트를 채웠어요! (잔여 ${remaining}코 남음 · 가벼운 1코 하나 더 해도 좋고, 그냥 넘어가도 좋아요)`;
+            } else {
+                warningEl.textContent = "랜덤으로 오늘의 10코스트를 꽉 채웠어요! 🎉";
+            }
+        }
+
+        function updateSummary() {
+            const summaryList = document.getElementById("summaryList");
+            summaryList.innerHTML = "";
+
+            const checkedItems = checkboxes
+                .map((cb, index) => ({ cb, index }))
+                .filter(obj => obj.cb.checked)
+                .map(obj => {
+                    const label = obj.cb.closest(".task-label").innerText.trim();
+                    const cost = Number(obj.cb.dataset.cost);
+                    return { label, cost, index: obj.index };
+                });
+
+            checkedItems.sort((a, b) => a.cost - b.cost);
+
+            checkedItems.forEach(item => {
+                const li = document.createElement("li");
+                li.classList.add("summary-item");
+
+                li.innerHTML = `
+      <span class="summary-text">
+        ${item.label}
+        <span class="summary-cost">(${item.cost}코)</span>
+      </span>
+      <span class="summary-remove" data-index="${item.index}">✖️</span>
+    `;
+
+                summaryList.appendChild(li);
+            });
+
+            // ❌ 클릭 이벤트
+            const removeBtns = summaryList.querySelectorAll(".summary-remove");
+            removeBtns.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    const idx = Number(e.target.dataset.index);
+
+                    // 체크 해제
+                    checkboxes[idx].checked = false;
+
+                    // 라벨 색 제거
+                    const label = checkboxes[idx].closest(".task-label");
+                    if (label) label.classList.remove("checked");
+
+                    updateStatus();
+                    updateSummary();
+                });
+            });
+        }
+
+
+        function syncLabelClasses() {
+            checkboxes.forEach((cb) => {
+                const label = cb.closest(".task-label");
+                if (!label) return;
+                if (cb.checked) {
+                    label.classList.add("checked");
+                } else {
+                    label.classList.remove("checked");
+                }
+            });
+        }
+
+        document.getElementById("sortAscBtn").addEventListener("click", () => {
+            sortSummary("asc");
+        });
+        document.getElementById("sortDescBtn").addEventListener("click", () => {
+            sortSummary("desc");
+        });
+
+        function sortSummary(order) {
+            const summaryList = document.getElementById("summaryList");
+            const items = [...summaryList.querySelectorAll("li")];
+
+            items.sort((a, b) => {
+                const costA = Number(a.innerText.match(/\((\d+)코\)/)[1]);
+                const costB = Number(b.innerText.match(/\((\d+)코\)/)[1]);
+                return order === "asc" ? costA - costB : costB - costA;
+            });
+
+            summaryList.innerHTML = "";
+            items.forEach(li => summaryList.appendChild(li));
+        }
+        let dailyTempC = "-";
+
+        function updateDailyTemp() {
+            if (!navigator.geolocation) return;
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.current_weather && typeof data.current_weather.temperature === "number") {
+                            dailyTempC = Math.round(data.current_weather.temperature);
+                            document.getElementById("dailyTemp").textContent = `🌤 ${dailyTempC}°C`;
+                        }
+                    });
+            });
+        }
+
+        // 이벤트 바인딩
+        checkboxes.forEach((cb) =>
+            cb.addEventListener("change", handleCheckboxChange)
+        );
+        externalSelect.addEventListener("change", updateStatus);
+        randomBtn.addEventListener("click", randomDay);
+        resetBtn.addEventListener("click", resetBoard);
+
+        // 초기 상태
+        updateStatus();
+        updateDailyInfo();
+        setInterval(updateDailyInfo, 30000);
+
+        updateDailyTemp();
+
+    </script>
+</body>
+
+</html>
